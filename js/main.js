@@ -12,7 +12,11 @@ const friction = 0.9;
 //Objecto creado para guardar las teclas que se van presionando 
 const keys = {};
 // arreglo para las balas
-const bullets = []
+const bullets = [];
+// arreglo para los enemigos
+const zombies = [];
+// Valor de la Gravedad;
+const gravity = 0.1;
 
 
 // Definimos las clases.
@@ -25,15 +29,12 @@ class GameAsset {
         this.height = height;
         this.image = new Image();
         this.image.src = img;
-        
-
     }
 
     draw() {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 }
-
 
 
 //2 Clase de mi escenario
@@ -45,7 +46,7 @@ class Board extends GameAsset {
     draw() {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
-}
+};
 
 //3Clase de mi personaje 
 class Character extends GameAsset {
@@ -56,6 +57,16 @@ class Character extends GameAsset {
     }
 
     draw() {
+
+        this.x += this.vx;
+        //vamos a implementar la friccion eje horizontal
+        this.vx *= friction;
+        
+        this.y += this.vy;
+        //vamos a implementar la friccion eje vertical
+        this.vy *= friction;
+
+
         // Se delimito el area inferior en la que el soldado va a poder moverse    
         if(this.y > $canvas.height - 78){
             this.y = $canvas.height- 78;
@@ -71,18 +82,14 @@ class Character extends GameAsset {
         // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse    
         if(this.x < 130){
             this.x = 130;
-        }
+        }       
 
-        this.x += this.vx;
-        //vamos a implementar la friccion eje horizontal
-        this.vx *= friction;
-        
-        this.y += this.vy;
-        //vamos a implementar la friccion eje vertical
-        this.vy *= friction;
-
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);       
 	}
+    // Metodo Creado para el impacto con los enemigos.
+    crash() {
+
+    };
     // Metodo para moverse para arriba
     moveUp() {        
         this.vy --;
@@ -117,34 +124,61 @@ class Bullet extends GameAsset {
         this.x ++;
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
-
 }
+
+//5Clase Enemigos
+class Zombie extends GameAsset {
+    constructor(y, width, height, img) {
+        super($canvas.width, y, width, height, img);
+    }
+
+    draw() {
+        //Para que salgan de la derecha hacia la izquierda
+        this.x--;        
+        // Se delimito el area inferior en la que el soldado va a poder moverse    
+        if(this.y > $canvas.height - 78){
+            this.y = $canvas.height- 78;
+        }
+        // Se delimito el area superio en la que el soldado va a poder moverse    
+        if(this.y < 5){
+            this.y = 5;
+        }
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+	}
+};
+
 
 
 // Instancias de las clases.
 
 //se crea una constancia para cargar la imagen y que la instancia quede mas limpia.
-const boardImage = "/img/1Background1.jpg"
-const soldierImage = "/img/2Soldado1.png"
-const zombieImage = "/img/3Zombie1.png"
-const bulletImage = "/img/4Bullet.png"
+const boardImage = "/img/1Background1.jpg";
+const soldierImage = "/img/2Soldado1.png";
+const bulletImage = "/img/4Bullet.png";
+const zombieImage = "/img/3Zombie1.png";
 
 //Instancia de escenario
 const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage);
 //Instancia de mi personaje
 const solider = new Character(200, $canvas.height / 2, 60, 60, soldierImage); 
 
+
+
+
+
 // Funciones principales.
-function start() {
-    if(intervalId) return;
+function start() {    
+    if(intervalId) return; // checar
     intervalId = setInterval(() => {
-            update();
+        update();
     }, 1000/60)
-}
+};
 
 function update() {
     //1Calcular el Estado
     frames++;
+    generateZombies();
+    gameOver();    
     checkKeys();       
 
     //2Limpiar Canvas();
@@ -154,15 +188,45 @@ function update() {
     board.draw();
     solider.draw();
     printBullets(); 
+    drawZombies();
 }
 
-
-
-
+function gameOver(){
+    if(solider.crash()){
+        clearInterval(intervalId);
+    }
+}
 // Funciones del apoyo.
 function clearCanvas(){
      ctx.clearRect(0, 0, $canvas.width, $canvas.height)
+ };
+
+ // Funcion de apoyo para parametros aleatorios
+ function random(parametro){
+     return Math.floor(Math.random() * parametro );
+};
+
+// Funcion para instanciar de manera aleatoria los Zombies
+ function generateZombies(){
+    if (frames % 200 === 0) {
+        const limitHeight = $canvas.height;
+        //instancia de mi Enemigo
+        const zombie1 = new Zombie(random(limitHeight), 60, 60, zombieImage);
+
+        zombies.push(zombie1)
+    }
+ };
+
+ // Funcion para imprimir la instancia aleatoria de los zombies 
+ function drawZombies(){
+     zombies.forEach((zombie) => {
+         zombie.draw()
+     }); 
  }
+
+ 
+
+ 
 
  //Funcion auxiliar para detectar las multiples teclas, esta verificando constantemente que teclas estan activas con el if
  function checkKeys(){
@@ -170,7 +234,6 @@ function clearCanvas(){
      if(keys.ArrowRight) solider.moveRight();
      if(keys.ArrowUp) solider.moveUp();
      if(keys.ArrowDown) solider.moveDown();
-
 
      //Codigo para imprimir balas si se deja precionada la tecla
     /* //  Vamos a definir la tecla que se va a utilizar para disparar (creacion de nuestra bala)
@@ -187,37 +250,29 @@ function clearCanvas(){
  function printBullets(){
      // un for each para recorrer el arreglo y mandar llamar su metedo de impresion por cada una de las balas
      bullets.forEach((bullet) => bullet.draw());
- }
-
-
+ };
 
 
 // Funciones de interacción con el usuario.
-
-
 document.onkeydown = (event) => {
     //formula para detertar multiples tecalas al mismo tiempo (ej arriba izquierda)
     //aasignar a la propiedad del objeto keys una llave con el nombre de la tecla 
-    keys[event.key] = true
-    
+    keys[event.key] = true    
 
     //Codigo para imprimir balas cada vez que se precione la tecla e
     // se va poner el meteodo para las balas en esta zona para que suceda cada que se preciona la tecla e y no se generen si se deja precionado.    
-    if(event.key === "e") {
+    if(event.key === "s") {
         const bullet = new Bullet(solider.x,solider.y+15, 10, 10, bulletImage);
         // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
         bullets.push(bullet);
     }
-    
-
-    };
+};
 
 // Cuando alguien deje de precionar la tecla que se detenga 
 
 document.onkeyup = (event) => {
     //Si alguien deja de precionar la tecla vuelvela falso 
     keys[event.key] = false;
-
     //si se deja de precionar la tecla deneter el soldado 
     solider.stop();
 };
