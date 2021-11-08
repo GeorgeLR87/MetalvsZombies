@@ -7,7 +7,10 @@ const ctx = $canvas.getContext("2d");
 //Variables  Globales.
 let intervalId;
 let frames = 0;
-// const friction = 1.09;
+// Valor de la friccion
+const friction = 0.9;
+//Objecto creado para guardar las teclas que se van presionando 
+const keys = {};
 
 
 // Definimos las clases.
@@ -45,9 +48,7 @@ class Board extends GameAsset {
 //3Clase de mi personaje 
 class Character extends GameAsset {
     constructor(x, y, width, height, img) {
-        super(x, y, width, height, img);
-         //se utiuliza con el primer metedo para mover las funciones checar si se quita o se queda
-        this.move = 15;
+        super(x, y, width, height, img);        
         this.vx = 0;
         this.vy = 0;
 
@@ -71,44 +72,39 @@ class Character extends GameAsset {
             this.x = 130;
         }
 
-        //this.x += this.vx;
+        this.x += this.vx;
         //vamos a implementar la friccion eje horizontal
-        //this.vx *= friction;
+        this.vx *= friction;
+        
+        this.y += this.vy;
         //vamos a implementar la friccion eje vertical
-        //this.y += this.vy;
-        //this.vy *= friction;
+        this.vy *= friction;
 
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
     // Metodo para moverse para arriba
-    moveUp() {
-        // this.move = 15; se utiuliza con el primer metedo para mover las funciones checar si se quita o se queda
-		this.y -= this.move;
-        //this.vy --;
+    moveUp() {        
+        this.vy --;
 	}
     // Metodo para moverse para abajo
-	moveDown() {
-        // this.move = 15; se utiuliza con el primer metedo para mover las funciones checar si se quita o se queda
-		this.y += this.move;
-        //this.vy ++;
+	moveDown() {       
+        this.vy ++;
 	}
     // Metodo para moverse para izquierda
-	moveLeft() {
-        // this.move = 15; se utiuliza con el primer metedo para mover las funciones checar si se quita o se queda
-		this.x -= this.move;
-        //this.vx --;
+	moveLeft() {        
+        this.vx --;
 	}
     // Metodo para moverse para derecha
-	moveRight() {
-        // this.move = 15; se utiuliza con el primer metedo para mover las funciones checar si se quita o se queda
-		this.x += this.move;
-        //this.vx ++;
+	moveRight() {        
+        this.vx ++;
 	}
 
-    /* stop(){
+
+    // Metodo para detener el personaje 
+    stop(){
         this.vx = 0;
         this.vy = 0;
-    } */
+    }
 
 }
 
@@ -135,6 +131,7 @@ function start() {
 function update() {
     //1Calcular el Estado
     frames++;
+    checkKeys();
     
 
     //2Limpiar Canvas();
@@ -154,43 +151,32 @@ function clearCanvas(){
      ctx.clearRect(0, 0, $canvas.width, $canvas.height)
  }
 
+ //Funcion auxiliar para detectar las multiples teclas, esta verificando constantemente que teclas estan activas con el if
+ function checkKeys(){
+     if(keys.ArrowLeft) solider.moveLeft();
+     if(keys.ArrowRight) solider.moveRight();
+     if(keys.ArrowUp) solider.moveUp();
+     if(keys.ArrowDown) solider.moveDown();
+ }
+
+
 // Funciones de interacción con el usuario.
 
 
 document.onkeydown = (event) => {
-    switch (event.key) {
-        //Iniciamos el Juego precionando la tecla enter
-        case "Enter":            
-            start();
-            break;
-        //Funcionalidad de la tecla arriba
-        case "ArrowUp":
-            solider.moveUp();
-            break;
-        //Funcionalidad de la tecla abajo
-        case "ArrowDown":
-            solider.moveDown();
-            break;
-        //Funcionalidad de la tecla izquierda
-        case "ArrowLeft":
-            solider.moveLeft();
-            break;
-        //Funcionalidad de la tecla derecha
-        case "ArrowRight":
-            solider.moveRight();
-            break;
-
-        default:
-            break; 
-          }
-        };
-    
-
-//$button.onclick = start();
-
+    //formula para detertar multiples tecalas al mismo tiempo (ej arriba izquierda)
+    //aasignar a la propiedad del objeto keys una llave con el nombre de la tecla 
+    keys[event.key] = true
+    };
 
 // Cuando alguien deje de precionar la tecla que se detenga 
 
-/* document.onkeyup = () => {
+document.onkeyup = (event) => {
+    //Si alguien deja de precionar la tecla vuelvela falso 
+    keys[event.key] = false;
+
+    //si se deja de precionar la tecla deneter el soldado 
     solider.stop();
-}; */
+};
+
+$button.onclick = start();
