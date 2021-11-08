@@ -11,6 +11,8 @@ let frames = 0;
 const friction = 0.9;
 //Objecto creado para guardar las teclas que se van presionando 
 const keys = {};
+// arreglo para las balas
+const bullets = []
 
 
 // Definimos las clases.
@@ -51,7 +53,6 @@ class Character extends GameAsset {
         super(x, y, width, height, img);        
         this.vx = 0;
         this.vy = 0;
-
     }
 
     draw() {
@@ -99,14 +100,26 @@ class Character extends GameAsset {
         this.vx ++;
 	}
 
-
     // Metodo para detener el personaje 
     stop(){
         this.vx = 0;
         this.vy = 0;
     }
+}
+
+//4Clase Bullet
+class Bullet extends GameAsset {
+    constructor(x, y, width, height, img) {
+        super(x, y, width, height, img);   
+    }
+
+    draw() {
+        this.x ++;
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    }
 
 }
+
 
 // Instancias de las clases.
 
@@ -114,12 +127,13 @@ class Character extends GameAsset {
 const boardImage = "/img/1Background1.jpg"
 const soldierImage = "/img/2Soldado1.png"
 const zombieImage = "/img/3Zombie1.png"
+const bulletImage = "/img/4Bullet.png"
 
 //Instancia de escenario
 const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage);
 //Instancia de mi personaje
 const solider = new Character(200, $canvas.height / 2, 60, 60, soldierImage); 
- 
+
 // Funciones principales.
 function start() {
     if(intervalId) return;
@@ -131,16 +145,15 @@ function start() {
 function update() {
     //1Calcular el Estado
     frames++;
-    checkKeys();
-    
+    checkKeys();       
 
     //2Limpiar Canvas();
     clearCanvas();
 
-
     //3Dibujas
     board.draw();
-    solider.draw()
+    solider.draw();
+    printBullets(); 
 }
 
 
@@ -157,7 +170,26 @@ function clearCanvas(){
      if(keys.ArrowRight) solider.moveRight();
      if(keys.ArrowUp) solider.moveUp();
      if(keys.ArrowDown) solider.moveDown();
+
+
+     //Codigo para imprimir balas si se deja precionada la tecla
+    /* //  Vamos a definir la tecla que se va a utilizar para disparar (creacion de nuestra bala)
+    // con el && vamos a limitar la cantidad de balas que vamos a imprimir por ejemplo cada que los frames tenga un multiplo de 16 es las veces que va a disparar 
+    if(keys.e && frames % 15 === 0) {
+        //Instancia de mi bala
+        const bullet = new Bullet(solider.x,solider.y+15, 10, 10, bulletImage);
+        // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
+        bullets.push(bullet); 
+   } */
  }
+
+ // Funcion auxiliar para pintar la bala 
+ function printBullets(){
+     // un for each para recorrer el arreglo y mandar llamar su metedo de impresion por cada una de las balas
+     bullets.forEach((bullet) => bullet.draw());
+ }
+
+
 
 
 // Funciones de interacción con el usuario.
@@ -167,6 +199,17 @@ document.onkeydown = (event) => {
     //formula para detertar multiples tecalas al mismo tiempo (ej arriba izquierda)
     //aasignar a la propiedad del objeto keys una llave con el nombre de la tecla 
     keys[event.key] = true
+    
+
+    //Codigo para imprimir balas cada vez que se precione la tecla e
+    // se va poner el meteodo para las balas en esta zona para que suceda cada que se preciona la tecla e y no se generen si se deja precionado.    
+    if(event.key === "e") {
+        const bullet = new Bullet(solider.x,solider.y+15, 10, 10, bulletImage);
+        // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
+        bullets.push(bullet);
+    }
+    
+
     };
 
 // Cuando alguien deje de precionar la tecla que se detenga 
