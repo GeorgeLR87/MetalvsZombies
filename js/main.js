@@ -295,6 +295,7 @@ function clearCanvas(){
        }
     })
     
+    // comprobación colisión balas con zombies
     zombies.forEach(obs => {
         bullets.forEach(bull => {
             if(bull.isTouching(obs)){
@@ -305,6 +306,16 @@ function clearCanvas(){
             }
         })
    })
+
+   // Comprobación Colisión Soldado Con poderes
+   powers.forEach(obs => {
+    if (solider.isTouching(obs)){
+        powers.splice(0, 1)
+     lives++;
+  }
+  
+})
+
  }
 
 
