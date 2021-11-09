@@ -15,8 +15,9 @@ const keys = {};
 const bullets = [];
 // arreglo para los enemigos
 const zombies = [];
-// Valor de la Gravedad;
-const gravity = 0.1;
+// arreglo para los enemigos
+const powers = [];
+
 
 
 // Definimos las clases.
@@ -147,6 +148,36 @@ class Zombie extends GameAsset {
 	}
 };
 
+//5Clase Poder
+class Power extends GameAsset {
+    constructor(x, y, width, height, img) {
+        super(x, y, width, height, img); 
+    }
+
+   draw() {
+       //Para que caigan 
+       //this.y++;
+       
+        // Se delimito el area inferior en la que el soldado va a poder moverse    
+        if(this.y > $canvas.height - 78){
+            this.y = $canvas.height- 78;
+        }
+        // Se delimito el area superio en la que el soldado va a poder moverse    
+        if(this.y < 5){
+           this.y = 5;
+        }
+         // Se delimito el area trasera(izquierda) en la que el soldado va a poder moverse    
+        if(this.x > $canvas.width - 270){
+            this.x = $canvas.width- 270;
+        }
+        // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse    
+        if(this.x < 130){
+            this.x = 130;
+         }    
+         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);   
+    }        
+};
+
 
 
 // Instancias de las clases.
@@ -156,14 +187,12 @@ const boardImage = "/img/1Background1.jpg";
 const soldierImage = "/img/2Soldado1.png";
 const bulletImage = "/img/4Bullet.png";
 const zombieImage = "/img/3Zombie1.png";
+const powerImage = "/img/5HongoPoder.png"
 
 //Instancia de escenario
 const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage);
 //Instancia de mi personaje
-const solider = new Character(200, $canvas.height / 2, 60, 60, soldierImage); 
-
-
-
+const solider = new Character(200, $canvas.height / 2, 70, 70, soldierImage); 
 
 
 // Funciones principales.
@@ -178,6 +207,7 @@ function update() {
     //1Calcular el Estado
     frames++;
     generateZombies();
+    generatePowers();
     gameOver();    
     checkKeys();       
 
@@ -189,6 +219,7 @@ function update() {
     solider.draw();
     printBullets(); 
     drawZombies();
+    drawPowers();
 }
 
 function gameOver(){
@@ -208,10 +239,10 @@ function clearCanvas(){
 
 // Funcion para instanciar de manera aleatoria los Zombies
  function generateZombies(){
-    if (frames % 200 === 0) {
+    if (frames % 250 === 0) {
         const limitHeight = $canvas.height;
         //instancia de mi Enemigo
-        const zombie1 = new Zombie(random(limitHeight), 60, 60, zombieImage);
+        const zombie1 = new Zombie(random(limitHeight), 70, 70, zombieImage);
 
         zombies.push(zombie1)
     }
@@ -223,6 +254,24 @@ function clearCanvas(){
          zombie.draw()
      }); 
  }
+
+ // Funcion para instanciar de manera aleatoria los Poderes
+ function generatePowers(){
+    if (frames % 600 === 0) {
+        const limitWidth = $canvas.width;
+        const limitHeight = $canvas.height;
+        //instancia de mi Poder
+        const power1 = new Power(random(limitWidth), random(limitHeight), 20, 20,powerImage);
+
+        powers.push(power1)
+    }
+ };
+// Funcion para imprimir la instancia aleatoria de los poderes
+ function drawPowers(){
+    powers.forEach((power) => {
+        power.draw()
+    }); 
+}
 
  
 
