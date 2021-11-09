@@ -11,10 +11,10 @@ let frames = 0;
 const friction = 0.85;
 //Objecto creado para guardar las teclas que se van presionando
 const keys = {};
-// arreglo para las balas
-const bullets = [];
 // arreglo para los enemigos
 const zombies = [];
+// arreglo para las balas
+const bullets = [];
 // arreglo para los enemigos
 const powers = [];
 //variable de las vidas
@@ -228,6 +228,8 @@ const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage);
 const solider = new Character(200, $canvas.height / 2, 70, 70, soldierImage);
 
 
+
+
 // Funciones principales.
 function start() {
     if(intervalId) return; // checar
@@ -242,7 +244,7 @@ function update() {
     generateZombies();
     generatePowers();
     checkCollitions();
-    //gameOver();
+    gameOver();
     //c heckCollitionsBullets()
     checkKeys();
 
@@ -292,40 +294,28 @@ function clearCanvas(){
         gameOver()
        }
     })
+    
+    zombies.forEach(obs => {
+        bullets.forEach(bull => {
+            if(bull.isTouching(obs)){
 
-    // comprobacion colisión disparos 
-
+                points++;
+                zombies.splice(0, 1);
+                bullets.splice(0,1);
+            }
+        })
+   })
  }
+
+
 
  function gameOver(){
     if(lives === 0){
         clearInterval(intervalId);
     }
-} 
+}
 
- // funcion para checar las coliciones de los balas
-
- /* function isTouching(bulletObs) {
-    return (
-        // si toca con la parte derecha de nuestro obstaculo
-        this.x < bulletObs.x + bulletObs.width &&
-        // si toca con la parte izquierda de nuestro obstaculo
-        this.x + this.width > bulletObs.x &&
-        // si toca con la parte inferior de nuestro obstaculo
-        this.y < bulletObs.y + bulletObs.height &&
-        // si toca con la parte superior de nuestro obstaculo
-        this.y + this.height > bulletObs.y
-    )
-    }
-
-
- function checkCollitionsBullets(){
-    zombies.forEach(obs => {
-       if (bullets.isTouching(obs)){
-           clearInterval(intervalId);
-       }
-    })
- } */
+ 
 
  // Funcion para imprimir la instancia aleatoria de los zombies
  function drawZombies(){
@@ -352,9 +342,7 @@ function clearCanvas(){
     });
 }
 
-
-
-
+ 
 
  //Funcion auxiliar para detectar las multiples teclas, esta verificando constantemente que teclas estan activas con el if
  function checkKeys(){
