@@ -7,29 +7,18 @@ const ctx = $canvas.getContext("2d");
 //Variables  Globales.
 let intervalId;
 let frames = 0;
-// Valor de la friccion
-const friction = 0.85;
-//Objecto creado para guardar las teclas que se van presionando
-const keys = {};
-// arreglo para los enemigos
-const zombies = [];
-// arreglo para los enemigos
-const zombieBoss = [];
-// arreglo para las balas
-const bullets = [];
-// arreglo para los enemigos
-const powers = [];
-//variable de las vidas
-let lives = 3;
-// const lives = [];
-
-const livesoldier = [];
-//Variable Puntos
-let points = 0;
+const friction = 0.85; // Valor de la friccion
+const keys = {}; //Objecto creado para guardar las teclas que se van presionando.
+const zombies = []; // arreglo para los enemigos.
+const zombieBoss = []; // arreglo para los enemigos.
+const bullets = []; // arreglo para las balas.
+const powers = [];// arreglo para los enemigos.
+let lives = 3; //variable de las vidas.
+let points = 0;//Variable Puntos
 
 
 
-// Definimos las clases.
+
 //1Clase Global
 class GameAsset {
     constructor(x, y, width, height, img) {
@@ -67,65 +56,58 @@ class Character extends GameAsset {
     }
 
     draw() {
-        this.x += this.vx;
-        //vamos a implementar la friccion eje horizontal
-        this.vx *= friction;
+        this.x += this.vx;        
+        this.vx *= friction; //vamos a implementar la friccion eje horizontal
 
-        this.y += this.vy;
-        //vamos a implementar la friccion eje vertical
-        this.vy *= friction;
-
-        // Se delimito el area inferior en la que el soldado va a poder moverse
-        if(this.y > $canvas.height - 78){
+        this.y += this.vy;       
+        this.vy *= friction;  //vamos a implementar la friccion eje vertical
+        
+        if(this.y > $canvas.height - 78){ // Se delimito el area inferior en la que el soldado va a poder moverse
             this.y = $canvas.height- 78;
         }
-        // Se delimito el area superio en la que el soldado va a poder moverse
-        if(this.y < 5){
+        
+        if(this.y < 5){ // Se delimito el area superio en la que el soldado va a poder moverse
             this.y = 5;
         }
-        // Se delimito el area trasera(izquierda) en la que el soldado va a poder moverse
-        if(this.x > $canvas.width - 270){
+        
+        if(this.x > $canvas.width - 270){ // Se delimito el area trasera(izquierda) en la que el soldado va a poder moverse
             this.x = $canvas.width- 270;
         }
-        // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse
-        if(this.x < 130){
+        
+        if(this.x < 130){ // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse
             this.x = 130;
         }
 
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
-    // Metodo para moverse para arriba
-    moveUp() {
+    
+    moveUp() { // Metodo para moverse para arriba
         this.vy --;
 	}
-    // Metodo para moverse para abajo
-	moveDown() {
+    
+	moveDown() {  // Metodo para moverse para abajo
         this.vy ++;
 	}
-    // Metodo para moverse para izquierda
-	moveLeft() {
+    
+	moveLeft() { // Metodo para moverse para izquierda
         this.vx --;
 	}
-    // Metodo para moverse para derecha
-	moveRight() {
+    
+	moveRight() {  // Metodo para moverse para derecha
         this.vx ++;
 	}
-    // Metodo para detener el personaje
-    stop(){
+    
+    stop() {  // Metodo para detener el personaje
         this.vx = 0;
         this.vy = 0;
     }
-    // codigo para generara coliciones
-    isTouching(obstacle) {
-        return (
-            // si toca con la parte derecha de nuestro obstaculo
-            this.x < obstacle.x + obstacle.width &&
-            // si toca con la parte izquierda de nuestro obstaculo
-            this.x + this.width > obstacle.x &&
-            // si toca con la parte inferior de nuestro obstaculo
-            this.y < obstacle.y + obstacle.height &&
-            // si toca con la parte superior de nuestro obstaculo
-            this.y + this.height > obstacle.y
+    
+    isTouching(obstacle) { // codigo para generara coliciones
+        return (            
+            this.x < obstacle.x + obstacle.width && // si toca con la parte derecha de nuestro obstaculo            
+            this.x + this.width > obstacle.x && // si toca con la parte izquierda de nuestro obstaculo            
+            this.y < obstacle.y + obstacle.height && // si toca con la parte inferior de nuestro obstaculo            
+            this.y + this.height > obstacle.y // si toca con la parte superior de nuestro obstaculo
         )
     }
 }
@@ -140,16 +122,12 @@ class Bullet extends GameAsset {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
     isTouching(obstacle) {
-        return (
-            // si toca con la parte derecha de nuestro obstaculo
-            this.x < obstacle.x + obstacle.width &&
-            // si toca con la parte izquierda de nuestro obstaculo
-            this.x + this.width > obstacle.x &&
-            // si toca con la parte inferior de nuestro obstaculo
-            this.y < obstacle.y + obstacle.height &&
-            // si toca con la parte superior de nuestro obstaculo
-            this.y + this.height > obstacle.y
-        )
+        return (            
+            this.x < obstacle.x + obstacle.width &&// si toca con la parte derecha de nuestro obstaculo            
+            this.x + this.width > obstacle.x && // si toca con la parte izquierda de nuestro obstaculo            
+            this.y < obstacle.y + obstacle.height && // si toca con la parte inferior de nuestro obstaculo            
+            this.y + this.height > obstacle.y // si toca con la parte superior de nuestro obstaculo
+        ) 
     }
 }
 
@@ -159,14 +137,13 @@ class Zombie extends GameAsset {
         super($canvas.width, y, width, height, img);
     }
     draw() {
-        //Para que salgan de la derecha hacia la izquierda
-        this.x--;
-        // Se delimito el area inferior en la que el soldado va a poder moverse
-        if(this.y > $canvas.height - 78){
+        
+        this.x--; //Para que salgan de la derecha hacia la izquierda
+        
+        if(this.y > $canvas.height - 78){ // Se delimito el area inferior en la que el soldado va a poder moverse
             this.y = $canvas.height- 78;
-        }
-        // Se delimito el area superio en la que el soldado va a poder moverse
-        if(this.y < 5){
+        }        
+        if(this.y < 5){ // Se delimito el area superio en la que el soldado va a poder moverse
             this.y = 5;
         }
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
@@ -178,26 +155,19 @@ class Power extends GameAsset {
     constructor(x, y, width, height, img) {
         super(x, y, width, height, img);
     }
-   draw() {
-       //Para que caigan
-       //this.y++;
-
-        // Se delimito el area inferior en la que el soldado va a poder moverse
-        if(this.y > $canvas.height - 78){
+   draw() {            
+        if(this.y > $canvas.height - 78){ // Se delimito el area inferior en la que el soldado va a poder moverse
             this.y = $canvas.height- 78;
-        }
-        // Se delimito el area superio en la que el soldado va a poder moverse
-        if(this.y < 5){
+        }       
+        if(this.y < 5){ // Se delimito el area superio en la que el soldado va a poder moverse
            this.y = 5;
-        }
-         // Se delimito el area trasera(izquierda) en la que el soldado va a poder moverse
-        if(this.x > $canvas.width - 270){
+        }         
+        if(this.x > $canvas.width - 270){ // Se delimito el area trasera(izquierda) en la que el soldado va a poder moverse
             this.x = $canvas.width- 270;
-        }
-        // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse
-        if(this.x < 130){
+        }        
+        if(this.x < 130){ // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse
             this.x = 130;
-         }
+        }
          ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 };
@@ -235,9 +205,17 @@ class Live extends GameAsset {
         else if( lives === 1){
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
-        
-        
+
     }
+
+        livesText(){
+            ctx.font = "40px sans-serif";
+            ctx.fillText("Lives: ",500,30);
+            ctx.fillStyle = "Black"
+        }
+        
+        
+   
 };
 
 //6Clase Vidas
@@ -246,9 +224,14 @@ class Points extends GameAsset {
         super(x, y, width, height, '');
     }
    draw() {
-        ctx.fillText(points, 460, 20) 
+       
+        ctx.fillText(points, 400, 30) 
+        ctx.font = "40px sans-serif";
+        ctx.fillText("Points: ",280,30);
+        ctx.fillStyle = "Black"
     }
 };
+
 
 
 
@@ -264,19 +247,16 @@ const zombie2Image = "/img/8Zombie2.png";
 const powerImage = "/img/5HongoPoder.png"
 const liveImage = "/img/7Soldado2.png"
 
-//Instancia de escenario
-const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage);
-//Instancia de personaje
-const solider = new Character(200, $canvas.height / 2, 70, 70, soldierImage);
-//Instancia de live
-const live = new Live(750, 10, 30, 30, liveImage)
-//Instancia de Puntos
-const point = new Points()
 
+const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage); //Instancia de escenario
+const solider = new Character(200, $canvas.height / 2, 70, 70, soldierImage); //Instancia de personaje
+const live = new Live(750, 10, 30, 30, liveImage) //Instancia de live
+const point = new Points() //Instancia de Puntos
 
 
 // Funciones principales.
 function start() {
+    if(intervalId)return
     intervalId = setInterval(() => {
         update();
     }, 1000/60)
@@ -284,6 +264,7 @@ function start() {
 
 
 function update() { 
+
     //1Calcular el Estado
     frames++;
     generateZombies();
@@ -304,6 +285,7 @@ function update() {
     drawZombieBoss();
     drawPowers();
     live.draw();
+    live.livesText()
     point.draw();
 
 }
@@ -331,16 +313,12 @@ function clearCanvas(){
 
  function generateBossZombie(){
     if (frames % 400 === 0) {
-        const limitHeight = $canvas.height;
-        //instancia de mi Enemigo
-        const zombie2 = new Zombie(random(limitHeight), 90, 90, zombie2Image);
-        zombieBoss.push(zombie2)
+      const limitHeight = $canvas.height;
+      //instancia de mi Enemigo
+      const zombie2 = new Zombie(random(limitHeight), 90, 90, zombie2Image);
+      zombieBoss.push(zombie2);
     }
  };
-
-
-
-
 
  // Funcion para instanciar de manera aleatoria los Poderes
  function generatePowers(){
@@ -349,11 +327,9 @@ function clearCanvas(){
         const limitHeight = $canvas.height;
         //instancia de mi Poder
         const power = new Power(random(limitWidth), random(limitHeight), 20, 20,powerImage);
-
         powers.push(power)
     }
  };
-
 
  // funcion para checar las coliciones de los zombies, balas y poderes
  function checkCollitions(){
@@ -404,7 +380,6 @@ zombieBoss.forEach(obs => {
    })
 })
 
-
    // Comprobación Colisión Soldado Con poderes
    powers.forEach((obs) => {
      if (solider.isTouching(obs)) {
@@ -419,16 +394,16 @@ zombieBoss.forEach(obs => {
  function gameOver(){
     if(lives === 0){
         clearInterval(intervalId);
+        
+
     }
 }
-
  // Funcion para imprimir la instancia aleatoria de los zombies
  function drawZombies(){
      zombies.forEach((zombie) => {
          zombie.draw()
      });
  }
-
  function drawZombieBoss(){
     zombieBoss.forEach((boss) => {
         boss.draw()
@@ -436,9 +411,8 @@ zombieBoss.forEach(obs => {
 }
 
  // Funcion auxiliar para pintar la bala
- function drawBullets(){
-    // un for each para recorrer el arreglo y mandar llamar su metedo de impresion por cada una de las balas
-    bullets.forEach((bullet) => bullet.draw());
+ function drawBullets(){    
+    bullets.forEach((bullet) => bullet.draw()); // un for each para recorrer el arreglo y mandar llamar su metedo de impresion por cada una de las balas
 };
 
 // Funcion para imprimir la instancia aleatoria de los poderes
@@ -447,9 +421,6 @@ zombieBoss.forEach(obs => {
         power.draw()
     });
 }
-
-
-
 
 
  //Funcion auxiliar para detectar las multiples teclas, esta verificando constantemente que teclas estan activas con el if
@@ -472,13 +443,11 @@ zombieBoss.forEach(obs => {
 
  // Cuando alguien deje de precionar la tecla que se detenga
 
-document.onkeyup = (event) => {
-    //Si alguien deja de precionar la tecla vuelvela falso
-    keys[event.key] = false;
-    //si se deja de precionar la tecla deneter el soldado
-    solider.stop();
+document.onkeyup = (event) => {    
+    keys[event.key] = false; //Si alguien deja de precionar la tecla vuelvela falso
+    
+    solider.stop(); //si se deja de precionar la tecla deneter el soldado
 };
-
 
 
 // Funciones de interacción con el usuario.
@@ -497,8 +466,8 @@ document.onkeydown = (event) => {
 };
 
 
- $button.onclick = start();
+ //$button.onclick = start();
 
-// $button.addEventListener ("click",event => {
-//     start();
-// })
+$button.addEventListener ("click",event => {
+     start();
+ })
