@@ -240,6 +240,8 @@ class Points extends GameAsset {
 
 //se crea una constancia para cargar la imagen y que la instancia quede mas limpia.
 const boardImage = "/img/1Background1.jpg";
+const gameOverImage = "/img/13GameOver.png"
+const winImage ="/img/15MissionWin.png"
 const soldierImage = "/img/2Soldado1.png";
 const bulletImage = "/img/4Bullet.png";
 const zombieImage = "/img/3Zombie1.png";
@@ -248,7 +250,10 @@ const powerImage = "/img/5HongoPoder.png"
 const liveImage = "/img/7Soldado2.png"
 
 
+
 const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage); //Instancia de escenario
+const gameOverBoard = new Board(0, 0, $canvas.width, $canvas.height, gameOverImage);
+const winBoard = new Board(0, 0, $canvas.width, $canvas.height, winImage);
 const solider = new Character(200, $canvas.height / 2, 70, 70, soldierImage); //Instancia de personaje
 const live = new Live(750, 10, 30, 30, liveImage) //Instancia de live
 const point = new Points() //Instancia de Puntos
@@ -266,12 +271,14 @@ function start() {
 function update() { 
 
     //1Calcular el Estado
+    
     frames++;
     generateZombies();
     generateBossZombie()
     generatePowers();
     checkCollitions();
-    gameOver();
+   
+    
     checkKeys();
 
     //2Limpiar Canvas();
@@ -287,6 +294,9 @@ function update() {
     live.draw();
     live.livesText()
     point.draw();
+    gameOver();
+    win();
+    buttonStar()   
 
 }
 
@@ -339,8 +349,8 @@ function clearCanvas(){
            zombies.splice(0, 1)
           lives--;          
        }
-       else {
-        gameOver()
+        else {
+         gameOver()
        }
     })
     // comprobación colisión balas con zombies
@@ -362,9 +372,9 @@ function clearCanvas(){
       zombieBoss.splice(0, 1)
      lives--;          
   }
-  else {
-   gameOver()
-  }
+   else {
+    gameOver()
+   }
 })
 
 // comprobación colisión balas con zombies
@@ -375,7 +385,7 @@ zombieBoss.forEach(obs => {
            zombieBoss.splice(0, 1);
            bullets.splice(0, 1);
 
-           (points++) ;
+           points++ ;
        }
    })
 })
@@ -389,14 +399,26 @@ zombieBoss.forEach(obs => {
    });
  }
 
+ // Funcion GameOver
+ function win(){
+    if(points === 2){  
+        clearInterval(intervalId);       
+        clearCanvas();
+        winBoard.draw();          
+    }
+    
+}
 
 // Funcion GameOver
  function gameOver(){
     if(lives === 0){
-        clearInterval(intervalId);
-        
+        clearInterval(intervalId); 
+        clearCanvas();
+        gameOverBoard.draw();   
+                 
 
     }
+    
 }
  // Funcion para imprimir la instancia aleatoria de los zombies
  function drawZombies(){
@@ -433,12 +455,12 @@ zombieBoss.forEach(obs => {
     //Codigo para imprimir balas si se deja precionada la tecla
      //  Vamos a definir la tecla que se va a utilizar para disparar (creacion de nuestra bala)
     // con el && vamos a limitar la cantidad de balas que vamos a imprimir por ejemplo cada que los frames tenga un multiplo de 16 es las veces que va a disparar
-    /* if(keys.s && frames % 40 === 0) {
+     if(keys.s && frames % 40 === 0) {
         //Instancia de mi bala
         const bullet = new Bullet(solider.x + 55, solider.y + 35 , 10, 10, bulletImage);
         // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
         bullets.push(bullet);
-   } */
+   } 
  }
 
  // Cuando alguien deje de precionar la tecla que se detenga
@@ -458,16 +480,18 @@ document.onkeydown = (event) => {
 
     //Codigo para imprimir balas cada vez que se precione la tecla e
     // se va poner el meteodo para las balas en esta zona para que suceda cada que se preciona la tecla e y no se generen si se deja precionado.
-     if(event.key === "s") {
+     /* if(event.key === "s") {
         const bullet = new Bullet(solider.x + 55, solider.y + 35 , 10, 10, bulletImage);
         // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
         bullets.push(bullet);
-    } 
+    }  */
 };
 
 
  //$button.onclick = start();
-
-$button.addEventListener ("click",event => {
-     start();
- })
+function buttonStar() {
+    $button.addEventListener ("click",event => {
+        start();
+    })
+}
+buttonStar()
