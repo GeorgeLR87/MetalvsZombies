@@ -210,8 +210,8 @@ class Live extends GameAsset {
     }
 
         livesText(){
-            ctx.font = "50px sans-serif";
-            ctx.fillText("Lives: ",470,40);
+            ctx.font = "50px Yuji Boku, serif";
+            ctx.fillText("Lives: ",410,40);
             ctx.fillStyle = "Black"
         }
 
@@ -226,9 +226,9 @@ class Points extends GameAsset {
     }
    draw() {
 
-        ctx.fillText(points, 410, 40)
-        ctx.font = "50px sans-serif";
-        ctx.fillText("Points: ",250,40);
+        ctx.fillText(points, 330, 40)
+        ctx.font = "50px Yuji Boku, serif";
+        ctx.fillText("Points: ",140,40);
         ctx.fillStyle = "Black"
     }
 };
