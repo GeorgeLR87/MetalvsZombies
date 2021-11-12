@@ -436,7 +436,7 @@ zombieBoss.forEach(obs => {
     //Codigo para imprimir balas si se deja precionada la tecla
      //  Vamos a definir la tecla que se va a utilizar para disparar (creacion de nuestra bala)
     // con el && vamos a limitar la cantidad de balas que vamos a imprimir por ejemplo cada que los frames tenga un multiplo de 16 es las veces que va a disparar
-     if(keys.s && frames % 40 === 0) {
+     if(keys.s && frames % 34 === 0) {
         //Instancia de mi bala
         const bullet = new Bullet(solider.x + 55, solider.y + 35 , 10, 10, bulletImage);
         // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
