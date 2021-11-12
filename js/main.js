@@ -401,7 +401,7 @@ zombieBoss.forEach(obs => {
 
  // Funcion GameOver
  function win(){
-    if(points === 2){  
+    if(points === 25){  
         clearInterval(intervalId);       
         clearCanvas();
         winBoard.draw();          
