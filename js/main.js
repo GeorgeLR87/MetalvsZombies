@@ -1,6 +1,7 @@
 // Traer los Elementos del DOM (canvas).
 const $canvas = document.querySelector("canvas");
 const $button = document.querySelector(".button")
+const $buttonReset = document.querySelector(".button-reset")
 const ctx = $canvas.getContext("2d");
 
 
@@ -56,57 +57,57 @@ class Character extends GameAsset {
     }
 
     draw() {
-        this.x += this.vx;        
+        this.x += this.vx;
         this.vx *= friction; //vamos a implementar la friccion eje horizontal
 
-        this.y += this.vy;       
+        this.y += this.vy;
         this.vy *= friction;  //vamos a implementar la friccion eje vertical
-        
+
         if(this.y > $canvas.height - 78){ // Se delimito el area inferior en la que el soldado va a poder moverse
             this.y = $canvas.height- 78;
         }
-        
+
         if(this.y < 5){ // Se delimito el area superio en la que el soldado va a poder moverse
             this.y = 5;
         }
-        
+
         if(this.x > $canvas.width - 270){ // Se delimito el area trasera(izquierda) en la que el soldado va a poder moverse
             this.x = $canvas.width- 270;
         }
-        
+
         if(this.x < 130){ // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse
             this.x = 130;
         }
 
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
-    
+
     moveUp() { // Metodo para moverse para arriba
         this.vy --;
 	}
-    
+
 	moveDown() {  // Metodo para moverse para abajo
         this.vy ++;
 	}
-    
+
 	moveLeft() { // Metodo para moverse para izquierda
         this.vx --;
 	}
-    
+
 	moveRight() {  // Metodo para moverse para derecha
         this.vx ++;
 	}
-    
+
     stop() {  // Metodo para detener el personaje
         this.vx = 0;
         this.vy = 0;
     }
-    
+
     isTouching(obstacle) { // codigo para generara coliciones
-        return (            
-            this.x < obstacle.x + obstacle.width && // si toca con la parte derecha de nuestro obstaculo            
-            this.x + this.width > obstacle.x && // si toca con la parte izquierda de nuestro obstaculo            
-            this.y < obstacle.y + obstacle.height && // si toca con la parte inferior de nuestro obstaculo            
+        return (
+            this.x < obstacle.x + obstacle.width && // si toca con la parte derecha de nuestro obstaculo
+            this.x + this.width > obstacle.x && // si toca con la parte izquierda de nuestro obstaculo
+            this.y < obstacle.y + obstacle.height && // si toca con la parte inferior de nuestro obstaculo
             this.y + this.height > obstacle.y // si toca con la parte superior de nuestro obstaculo
         )
     }
@@ -122,12 +123,12 @@ class Bullet extends GameAsset {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
     isTouching(obstacle) {
-        return (            
-            this.x < obstacle.x + obstacle.width &&// si toca con la parte derecha de nuestro obstaculo            
-            this.x + this.width > obstacle.x && // si toca con la parte izquierda de nuestro obstaculo            
-            this.y < obstacle.y + obstacle.height && // si toca con la parte inferior de nuestro obstaculo            
+        return (
+            this.x < obstacle.x + obstacle.width &&// si toca con la parte derecha de nuestro obstaculo
+            this.x + this.width > obstacle.x && // si toca con la parte izquierda de nuestro obstaculo
+            this.y < obstacle.y + obstacle.height && // si toca con la parte inferior de nuestro obstaculo
             this.y + this.height > obstacle.y // si toca con la parte superior de nuestro obstaculo
-        ) 
+        )
     }
 }
 
@@ -137,12 +138,12 @@ class Zombie extends GameAsset {
         super($canvas.width, y, width, height, img);
     }
     draw() {
-        
+
         this.x--; //Para que salgan de la derecha hacia la izquierda
-        
+
         if(this.y > $canvas.height - 78){ // Se delimito el area inferior en la que el soldado va a poder moverse
             this.y = $canvas.height- 78;
-        }        
+        }
         if(this.y < 5){ // Se delimito el area superio en la que el soldado va a poder moverse
             this.y = 5;
         }
@@ -155,16 +156,16 @@ class Power extends GameAsset {
     constructor(x, y, width, height, img) {
         super(x, y, width, height, img);
     }
-   draw() {            
+   draw() {
         if(this.y > $canvas.height - 78){ // Se delimito el area inferior en la que el soldado va a poder moverse
             this.y = $canvas.height- 78;
-        }       
+        }
         if(this.y < 5){ // Se delimito el area superio en la que el soldado va a poder moverse
            this.y = 5;
-        }         
+        }
         if(this.x > $canvas.width - 270){ // Se delimito el area trasera(izquierda) en la que el soldado va a poder moverse
             this.x = $canvas.width- 270;
-        }        
+        }
         if(this.x < 130){ // Se delimito el area delantera (derecha) en la que el soldado va a poder moverse
             this.x = 130;
         }
@@ -178,7 +179,7 @@ class Live extends GameAsset {
         super(x, y, width, height, img);
     }
    draw() {
-    
+
         if(lives === 5) {
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
             ctx.drawImage(this.image, this.x - 50, this.y, this.width, this.height);
@@ -191,16 +192,16 @@ class Live extends GameAsset {
             ctx.drawImage(this.image, this.x - 50, this.y, this.width, this.height);
             ctx.drawImage(this.image, this.x - 100, this.y, this.width, this.height);
             ctx.drawImage(this.image, this.x - 150, this.y, this.width, this.height);
-        } 
+        }
         else if( lives === 3){
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
             ctx.drawImage(this.image, this.x - 50, this.y, this.width, this.height);
             ctx.drawImage(this.image, this.x - 100, this.y, this.width, this.height);
-        } 
+        }
         else if( lives === 2){
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
             ctx.drawImage(this.image, this.x - 50, this.y, this.width, this.height);
-            
+
         }
         else if( lives === 1){
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
@@ -209,13 +210,13 @@ class Live extends GameAsset {
     }
 
         livesText(){
-            ctx.font = "40px sans-serif";
-            ctx.fillText("Lives: ",500,30);
+            ctx.font = "50px sans-serif";
+            ctx.fillText("Lives: ",470,40);
             ctx.fillStyle = "Black"
         }
-        
-        
-   
+
+
+
 };
 
 //6Clase Vidas
@@ -224,10 +225,10 @@ class Points extends GameAsset {
         super(x, y, width, height, '');
     }
    draw() {
-       
-        ctx.fillText(points, 400, 30) 
-        ctx.font = "40px sans-serif";
-        ctx.fillText("Points: ",280,30);
+
+        ctx.fillText(points, 410, 40)
+        ctx.font = "50px sans-serif";
+        ctx.fillText("Points: ",250,40);
         ctx.fillStyle = "Black"
     }
 };
@@ -268,17 +269,15 @@ function start() {
 };
 
 
-function update() { 
+function update() {
 
     //1Calcular el Estado
-    
+
     frames++;
     generateZombies();
     generateBossZombie()
     generatePowers();
     checkCollitions();
-   
-    
     checkKeys();
 
     //2Limpiar Canvas();
@@ -296,7 +295,9 @@ function update() {
     point.draw();
     gameOver();
     win();
-    buttonStar()   
+    // buttonStar();
+    //buttonReset()
+
 
 }
 
@@ -347,7 +348,7 @@ function clearCanvas(){
     zombies.forEach(obs => {
          if (solider.isTouching(obs)){
            zombies.splice(0, 1)
-          lives--;          
+          lives--;
        }
         else {
          gameOver()
@@ -370,7 +371,7 @@ function clearCanvas(){
    zombieBoss.forEach(obs => {
     if (solider.isTouching(obs)){
       zombieBoss.splice(0, 1)
-     lives--;          
+     lives--;
   }
    else {
     gameOver()
@@ -401,24 +402,22 @@ zombieBoss.forEach(obs => {
 
  // Funcion GameOver
  function win(){
-    if(points === 25){  
-        clearInterval(intervalId);       
+    if(points === 25){
+        clearInterval(intervalId);
         clearCanvas();
-        winBoard.draw();          
+        winBoard.draw();
     }
-    
 }
 
 // Funcion GameOver
  function gameOver(){
     if(lives === 0){
-        clearInterval(intervalId); 
+        clearInterval(intervalId);
         clearCanvas();
-        gameOverBoard.draw();   
-                 
+        gameOverBoard.draw();
 
     }
-    
+
 }
  // Funcion para imprimir la instancia aleatoria de los zombies
  function drawZombies(){
@@ -433,7 +432,7 @@ zombieBoss.forEach(obs => {
 }
 
  // Funcion auxiliar para pintar la bala
- function drawBullets(){    
+ function drawBullets(){
     bullets.forEach((bullet) => bullet.draw()); // un for each para recorrer el arreglo y mandar llamar su metedo de impresion por cada una de las balas
 };
 
@@ -460,14 +459,14 @@ zombieBoss.forEach(obs => {
         const bullet = new Bullet(solider.x + 55, solider.y + 35 , 10, 10, bulletImage);
         // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
         bullets.push(bullet);
-   } 
+   }
  }
 
  // Cuando alguien deje de precionar la tecla que se detenga
 
-document.onkeyup = (event) => {    
+document.onkeyup = (event) => {
     keys[event.key] = false; //Si alguien deja de precionar la tecla vuelvela falso
-    
+
     solider.stop(); //si se deja de precionar la tecla deneter el soldado
 };
 
@@ -477,21 +476,15 @@ document.onkeydown = (event) => {
     //formula para detertar multiples tecalas al mismo tiempo (ej arriba izquierda)
     //aasignar a la propiedad del objeto keys una llave con el nombre de la tecla
     keys[event.key] = true
-
-    //Codigo para imprimir balas cada vez que se precione la tecla e
-    // se va poner el meteodo para las balas en esta zona para que suceda cada que se preciona la tecla e y no se generen si se deja precionado.
-     /* if(event.key === "s") {
-        const bullet = new Bullet(solider.x + 55, solider.y + 35 , 10, 10, bulletImage);
-        // la vamos a ingresar en nuestro arreglo que ya habiamos creado.
-        bullets.push(bullet);
-    }  */
 };
 
 
- //$button.onclick = start();
-function buttonStar() {
-    $button.addEventListener ("click",event => {
-        start();
-    })
+ $button.onclick = start;
+
+
+function buttonReset() {    
+    window.location.reload();    
 }
-buttonStar()
+
+
+
