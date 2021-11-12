@@ -4,7 +4,6 @@ const $button = document.querySelector(".button")
 const $buttonReset = document.querySelector(".button-reset")
 const ctx = $canvas.getContext("2d");
 
-
 //Variables  Globales.
 let intervalId;
 let frames = 0;
@@ -16,8 +15,6 @@ const bullets = []; // arreglo para las balas.
 const powers = [];// arreglo para los enemigos.
 let lives = 3; //variable de las vidas.
 let points = 0;//Variable Puntos
-
-
 
 
 //1Clase Global
@@ -214,9 +211,6 @@ class Live extends GameAsset {
             ctx.fillText("Lives: ",410,40);
             ctx.fillStyle = "Black"
         }
-
-
-
 };
 
 //6Clase Vidas
@@ -234,11 +228,6 @@ class Points extends GameAsset {
 };
 
 
-
-
-
-// Instancias de las clases.
-
 //se crea una constancia para cargar la imagen y que la instancia quede mas limpia.
 const boardImage = "/img/1Background1.jpg";
 const gameOverImage = "/img/13GameOver.png"
@@ -250,8 +239,7 @@ const zombie2Image = "/img/8Zombie2.png";
 const powerImage = "/img/5HongoPoder.png"
 const liveImage = "/img/7Soldado2.png"
 
-
-
+// Instancias de las clases.
 const board = new Board(0, 0, $canvas.width, $canvas.height, boardImage); //Instancia de escenario
 const gameOverBoard = new Board(0, 0, $canvas.width, $canvas.height, gameOverImage);
 const winBoard = new Board(0, 0, $canvas.width, $canvas.height, winImage);
@@ -295,10 +283,6 @@ function update() {
     point.draw();
     gameOver();
     win();
-    // buttonStar();
-    //buttonReset()
-
-
 }
 
 
@@ -361,7 +345,6 @@ function clearCanvas(){
 
                 zombies.splice(0, 1);
                 bullets.splice(0, 1);
-
                 points++;
             }
         })
@@ -385,7 +368,6 @@ zombieBoss.forEach(obs => {
 
            zombieBoss.splice(0, 1);
            bullets.splice(0, 1);
-
            points++ ;
        }
    })
@@ -415,7 +397,6 @@ zombieBoss.forEach(obs => {
         clearInterval(intervalId);
         clearCanvas();
         gameOverBoard.draw();
-
     }
 
 }
@@ -446,6 +427,7 @@ zombieBoss.forEach(obs => {
 
  //Funcion auxiliar para detectar las multiples teclas, esta verificando constantemente que teclas estan activas con el if
  function checkKeys(){
+   
      if(keys.ArrowLeft) solider.moveLeft();
      if(keys.ArrowRight) solider.moveRight();
      if(keys.ArrowUp) solider.moveUp();
@@ -465,6 +447,7 @@ zombieBoss.forEach(obs => {
  // Cuando alguien deje de precionar la tecla que se detenga
 
 document.onkeyup = (event) => {
+    
     keys[event.key] = false; //Si alguien deja de precionar la tecla vuelvela falso
 
     solider.stop(); //si se deja de precionar la tecla deneter el soldado
@@ -473,15 +456,17 @@ document.onkeyup = (event) => {
 
 // Funciones de interacción con el usuario.
 document.onkeydown = (event) => {
+    event.preventDefault()
     //formula para detertar multiples tecalas al mismo tiempo (ej arriba izquierda)
     //aasignar a la propiedad del objeto keys una llave con el nombre de la tecla
     keys[event.key] = true
 };
 
-
+// Funcionalidad para el click de start
  $button.onclick = start;
 
 
+ //Funcionalidad Reset
 function buttonReset() {    
     window.location.reload();    
 }
