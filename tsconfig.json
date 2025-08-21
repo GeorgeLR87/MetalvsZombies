@@ -17,9 +17,22 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@systems/*": ["src/systems/*"],
+      "@scenes/*": ["src/scenes/*"],
+      "@entities/*": ["src/entities/*"],
+      "@ui/*": ["src/ui/*"],
+      "@config/*": ["src/config/*"],
+      "@types/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"]
+    },
+    "resolveJsonModule": true
   },
   "include": ["src"]
 }

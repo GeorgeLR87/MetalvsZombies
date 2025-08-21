@@ -2,24 +2,24 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Metal vs Zombies v2</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Metal vs Zombies</title>
     <style>
-      body {
-        margin: 0;
-        background: #111;
-        color: #eee;
+      html,body{
+        margin:0;
+        height:100%;
+        background:#111;
+        color:#fff
       }
-      canvas {
-        display: block;
-        margin: 0 auto;
-        background: #111;
+      canvas{
+        display:block;
+        margin:0 auto;
+        outline:1px solid #333
       }
     </style>
   </head>
   <body>
-    <canvas id="game"></canvas>
+    <canvas id="game" width="960" height="540"></canvas>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
