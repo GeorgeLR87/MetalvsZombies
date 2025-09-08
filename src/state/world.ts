@@ -39,15 +39,16 @@ export function makePlayer() {
 }
 
 // --- Enemy factory (dummy) ---
-export function makeEnemy(x = 300, y = 260) {
+export function makeEnemy(x = 300, y = 260, speed = 80) {
   return {
     tag: 'enemy' as const,
     transform: { x, y },
-    // sin kinematics por ahora (enemigo estático)
+    kinematics: { vx: 0, vy: 0, speed },     // 👈 velocidad base del enemigo
     collider: { w: 28, h: 28, solid: true },
     sprite: { w: 28, h: 28, color: '#0af' }
   };
 }
+
 
 // --- Projectile factory ---
 export function makeProjectile(x: number, y: number, dir: 'right'|'left' = 'right') {
