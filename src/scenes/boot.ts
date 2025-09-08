@@ -1,13 +1,12 @@
 import type { Scene } from '@core/scene';
 import type { Game } from '@core/game';
-import { createPlayScene } from './play'; 
+import { createPlayScene } from './play';
 
 export function createBootScene(game: Game): Scene {
   return {
-    async init() {
-      // Ejemplo de precarga:
-      // await game.assets.loadImage('player', '/img/player.png');
-      // transición directa por ahora
+    // No es async mientras no uses await (evita @typescript-eslint/require-await)
+    init() {
+      // En el futuro, si precargas assets con await, vuelve a marcar esto como async
       game.scenes.change(createPlayScene(game));
     },
     update() {},

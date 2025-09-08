@@ -7,13 +7,19 @@ export type Scene = {
 
 export function createSceneManager() {
   let current: Scene | null = null;
+
   return {
     change(next: Scene) {
       current?.dispose?.();
       current = next;
-      current?.init?.();
+      // Si init es async, marcamos explícitamente que ignoramos la promesa
+      void current?.init?.();
     },
-    update(dt: number) { current?.update(dt); },
-    render(ctx: CanvasRenderingContext2D) { current?.render(ctx); }
+    update(dt: number) {
+      current?.update(dt);
+    },
+    render(ctx: CanvasRenderingContext2D) {
+      current?.render(ctx);
+    }
   };
 }
