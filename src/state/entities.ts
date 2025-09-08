@@ -1,15 +1,19 @@
-// Component-style light: cada entidad es un objeto con componentes opcionales
-export type EntityId = number;
+// Componentes base
+export type Transform = { x: number; y: number };
+export type Kinematics = { vx: number; vy: number; speed: number };
 
-export type Transform = { x: number; y: number; vx?: number; vy?: number };
+// AABB en coordenadas del mundo
+export type Collider = { w: number; h: number, solid?: boolean }; 
+
 export type Sprite = { w: number; h: number; color?: string; imageKey?: string };
+export type Tag = 'player' | 'enemy' | 'projectile';
 
+// Entidad
 export type Entity = {
-  id: EntityId;
+  id: number;
+  tag?: Tag;
   transform?: Transform;
+  kinematics?: Kinematics;
+  collider?: Collider;
   sprite?: Sprite;
-  tag?: 'player' | 'enemy' | 'projectile';
 };
-
-let nextId = 1;
-export const newId = () => nextId++;
