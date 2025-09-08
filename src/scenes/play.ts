@@ -9,40 +9,59 @@ import { boundsSystem } from '@systems/bounds';
 import { damageSystem } from '@systems/damage';
 import { renderingSystem } from '@systems/rendering';
 import { createShootingSystem } from '@systems/shooting';
+import { hudSystem } from '@systems/hud';
+import { checkGameOver } from '@systems/gameOverSystem';
+import { playerHitSystem } from '@systems/playerHit';
+import { createGameOverScene } from './gameOverScene'; 
 
 export function createPlayScene(game: Game): Scene {
   const world = createWorld();
 
-  // Entities iniciales
   world.add(makePlayer());
 
-  // Systems con estado interno (spawn, shooting)
   const spawnSystem = createSpawnSystem();
   const shootingSystem = createShootingSystem();
 
-  // (Opcional) marcador local
   let score = 0;
+  let lives = 3;
 
   return {
     update(dt) {
-      inputSystem(world, game);                         // teclado → kinematics
-      shootingSystem(world, game, dt);                 // genera balas (cooldown)
-      movementSystem(world, dt);                       // aplica kinematics
-      projectilesCleanupSystem(world, game.ctx.canvas);// limpia balas offscreen
-      spawnSystem(world, game, dt);                    // spawnea enemigos
-      boundsSystem(world, game.ctx.canvas);            // clamp entidades (no balas)
+      inputSystem(world, game);
+      shootingSystem(world, game, dt);
+      movementSystem(world, dt);
+      projectilesCleanupSystem(world, game.ctx.canvas);
+      spawnSystem(world, game, dt);
+      boundsSystem(world, game.ctx.canvas);
+
+      // balas destruyen enemigos y suman score
       const before = world.entities.length;
-      damageSystem(world);                              // balas destruyen enemigos
+      damageSystem(world);
       const after = world.entities.length;
-      if (after < before) score += (before - after);    // demo: sumar por entidades removidas
+      if (after < before) score += before - after;
+
+      // player golpea enemigo → pierde vida
+      if (playerHitSystem(world)) {
+        lives -= 1;
+        if (lives <= 0) {
+          game.scenes.change(createGameOverScene(game, score));
+          return; // salimos para no seguir procesando este frame
+        }
+        // opcional: empuja un poco al player o pinta flash
+        // (de momento, sin knockback para mantenerlo simple)
+      }
+
+      // condición adicional de game over (enemigo cruza borde)
+      if (checkGameOver(world, game.ctx.canvas)) {
+        lives -= 1;
+        if (lives <= 0) {
+          game.scenes.change(createGameOverScene(game, score));
+        }
+      }
     },
     render(ctx) {
       renderingSystem(world, ctx);
-      // HUD mínimo
-      ctx.fillStyle = '#fff';
-      ctx.font = '14px monospace';
-      ctx.fillText(`Score: ${score}`, 16, 20);
-      ctx.fillText(`Block 5: shooting + spawn + damage`, 16, 38);
+      hudSystem(ctx, score, lives); // 👈 HUD sin 'game'
     }
   };
 }
