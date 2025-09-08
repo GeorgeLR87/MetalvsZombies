@@ -9,14 +9,19 @@ import { boundsSystem } from '@systems/bounds';
 import { damageSystem } from '@systems/damage';
 import { renderingSystem } from '@systems/rendering';
 import { createShootingSystem } from '@systems/shooting';
-import { checkGameOver } from '@systems/gameOverSystem'; // <-- usa el nombre real
+import { checkGameOver } from '@systems/gameOverSystem';
 import { playerHitSystem } from '@systems/playerHit';
 import { enemyAISystem } from '@systems/enemyAI';
-import { createGameOverScene } from './gameOverScene';
+import { createGameOverScene } from './gameOverScene'; 
 
-type WithBus = Game & { bus?: { emit: (t: any, p: any) => void } };
+import type { EventBus } from '@core/event-bus';
+import type { UIEvents } from '@ui/adapter';
+
+// Game extendido con bus tipado (opcional)
+type GameWithBus = Game & { bus?: EventBus<UIEvents> };
 
 export function createPlayScene(game: Game): Scene {
+  const g = game as GameWithBus; // 👈 cast específico (sin any)
   const world = createWorld();
 
   world.add(makePlayer());
@@ -27,39 +32,33 @@ export function createPlayScene(game: Game): Scene {
   let score = 0;
   let lives = 3;
 
-  // Invulnerabilidad
   let invulnTimer = 0;
   const invulnDuration = 1;
 
-  // Pausa
   let paused = false;
   let prevP = false;
-
-  // Flag para no procesar más frames tras game over
   let gameOver = false;
 
-  // Inicializa UI
-  (game as WithBus).bus?.emit('ui:score:set', score);
-  (game as WithBus).bus?.emit('ui:lives:set', lives);
-  (game as WithBus).bus?.emit('ui:paused:set', paused);
+  // Inicializar UI
+  g.bus?.emit('ui:score:set', score);
+  g.bus?.emit('ui:lives:set', lives);
+  g.bus?.emit('ui:paused:set', paused);
 
   function togglePauseIfNeeded() {
     const p = game.input.pressed('p') || game.input.pressed('P');
     if (p && !prevP) {
       paused = !paused;
-      (game as WithBus).bus?.emit('ui:paused:set', paused);
+      g.bus?.emit('ui:paused:set', paused);
     }
     prevP = p;
   }
 
   function loseLife() {
-    // Clampea vidas, emite y decide game over
     lives = Math.max(0, lives - 1);
-    (game as WithBus).bus?.emit('ui:lives:set', lives);
+    g.bus?.emit('ui:lives:set', lives);
     invulnTimer = invulnDuration;
     if (lives <= 0) {
-      // Opcional: también podrías emitir paused=true aquí
-      (game as WithBus).bus?.emit('ui:paused:set', true);
+      g.bus?.emit('ui:paused:set', true);
       game.scenes.change(createGameOverScene(game, score));
       gameOver = true;
     }
@@ -67,7 +66,7 @@ export function createPlayScene(game: Game): Scene {
 
   return {
     update(dt) {
-      if (gameOver) return; // no más lógica tras game over
+      if (gameOver) return;
 
       togglePauseIfNeeded();
       if (paused) return;
@@ -83,29 +82,24 @@ export function createPlayScene(game: Game): Scene {
       spawnSystem(world, game, dt);
       boundsSystem(world, game.ctx.canvas);
 
-      // Balas vs enemigo → score
       const before = world.entities.length;
       damageSystem(world);
       const after = world.entities.length;
       if (after < before) {
-        score += (before - after);
-        (game as WithBus).bus?.emit('ui:score:set', score);
+        score += before - after;
+        g.bus?.emit('ui:score:set', score);
       }
 
-      // Player vs enemy → pierde 1 vida (respetando i-frames)
       if (invulnTimer <= 0 && playerHitSystem(world)) {
         loseLife();
-        if (gameOver) return; // corta el frame si llegó a 0
+        if (gameOver) return;
       }
-
-      // Reglas adicionales: enemigo “escapa” del canvas → cuenta como daño
       if (invulnTimer <= 0 && checkGameOver(world, game.ctx.canvas)) {
         loseLife();
         if (gameOver) return;
       }
     },
     render(ctx) {
-      // Solo canvas del juego; HUD está en React
       renderingSystem(world, ctx);
     }
   };
