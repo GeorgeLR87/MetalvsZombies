@@ -1,30 +1,39 @@
-import type { Entity, EntityId } from './entities';
+import type { Entity } from './entities';
 
 export type World = {
   entities: Entity[];
   add: (e: Omit<Entity, 'id'>) => Entity;
-  remove: (id: EntityId) => void;
+  remove: (id: number) => void;
   findByTag: (tag: Entity['tag']) => Entity[];
 };
 
 export function createWorld(): World {
   const entities: Entity[] = [];
+  let nextId = 1;
 
   function add(e: Omit<Entity, 'id'>): Entity {
-    const id = (Math.random() * 1e9) | 0; // id simple (o usa newId())
-    const ent: Entity = { id, ...e };
+    const ent: Entity = { id: nextId++, ...e };
     entities.push(ent);
     return ent;
   }
-
-  function remove(id: EntityId) {
+  function remove(id: number) {
     const idx = entities.findIndex(e => e.id === id);
     if (idx >= 0) entities.splice(idx, 1);
   }
-
   function findByTag(tag: Entity['tag']) {
     return entities.filter(e => e.tag === tag);
   }
 
   return { entities, add, remove, findByTag };
+}
+
+// Factory: player
+export function makePlayer() {
+  return {
+    tag: 'player' as const,
+    transform: { x: 100, y: 300 },
+    kinematics: { vx: 0, vy: 0, speed: 180 },
+    collider: { w: 24, h: 24, solid: true },
+    sprite: { w: 24, h: 24, color: '#ff0' }
+  };
 }
