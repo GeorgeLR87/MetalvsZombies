@@ -1,28 +1,25 @@
 import type { Scene } from '@core/scene';
 import type { Game } from '@core/game';
-import { createWorld } from '@state/world';
+import { createWorld, makePlayer } from '@state/world';
+import { inputSystem } from '@systems/input';
 import { movementSystem } from '@systems/movement';
 import { renderingSystem } from '@systems/rendering';
 
-export function createPlayScene(_game: Game): Scene {
+export function createPlayScene(game: Game): Scene {
   const world = createWorld();
-
-  // demo: jugador como rectángulo
-  world.add({
-    tag: 'player',
-    transform: { x: 100, y: 300, vx: 40, vy: 0 },
-    sprite: { w: 24, h: 24, color: '#ff0' }
-  });
+  world.add(makePlayer());
 
   return {
     update(dt) {
+      inputSystem(world, game);
       movementSystem(world, dt);
+      // (en el siguiente bloque: boundsSystem, collisionSystem, etc.)
     },
     render(ctx) {
       renderingSystem(world, ctx);
       ctx.fillStyle = '#0f0';
-      ctx.font = '16px monospace';
-      ctx.fillText('Play Scene (FP systems)', 20, 30);
+      ctx.font = '14px monospace';
+      ctx.fillText('Play Scene – Player + InputSystem', 16, 20);
     }
   };
 }
