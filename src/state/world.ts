@@ -37,3 +37,14 @@ export function makePlayer() {
     sprite: { w: 24, h: 24, color: '#ff0' }
   };
 }
+
+// --- Enemy factory (dummy) ---
+export function makeEnemy(x = 300, y = 260) {
+  return {
+    tag: 'enemy' as const,
+    transform: { x, y },
+    // sin kinematics por ahora (enemigo estático)
+    collider: { w: 28, h: 28, solid: true },
+    sprite: { w: 28, h: 28, color: '#0af' }
+  };
+}
