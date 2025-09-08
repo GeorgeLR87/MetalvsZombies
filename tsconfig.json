@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-     "...": "...",
-    "jsx": "react-jsx",
     "target": "ES2022",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -33,9 +31,12 @@
       "@config/*": ["src/config/*"],
       "@types/*": ["src/types/*"],
       "@utils/*": ["src/utils/*"],
-      "@state/*": ["src/state/*"] 
+      "@state/*": ["src/state/*"]
     },
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+
+    /* 👇 agregado en Bloque 8 */
+    "jsx": "react-jsx"
   },
   "include": ["src"]
 }
