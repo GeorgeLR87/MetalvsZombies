@@ -9,11 +9,12 @@ import { boundsSystem } from '@systems/bounds';
 import { damageSystem } from '@systems/damage';
 import { renderingSystem } from '@systems/rendering';
 import { createShootingSystem } from '@systems/shooting';
-import { hudSystem } from '@systems/hud';
-import { checkGameOver } from '@systems/gameOverSystem'; 
+import { checkGameOver } from '@systems/gameOverSystem'; // <-- usa el nombre real
 import { playerHitSystem } from '@systems/playerHit';
 import { enemyAISystem } from '@systems/enemyAI';
-import { createGameOverScene } from './gameOverScene'; 
+import { createGameOverScene } from './gameOverScene';
+
+type WithBus = Game & { bus?: { emit: (t: any, p: any) => void } };
 
 export function createPlayScene(game: Game): Scene {
   const world = createWorld();
@@ -26,51 +27,55 @@ export function createPlayScene(game: Game): Scene {
   let score = 0;
   let lives = 3;
 
-  // ⏳ Invulnerabilidad
-  let invulnTimer = 0;       // segundos restantes
-  const invulnDuration = 1;  // 1s de i-frames
+  // Invulnerabilidad
+  let invulnTimer = 0;
+  const invulnDuration = 1;
 
-  // ⏸️ Pausa (toggle con P)
+  // Pausa
   let paused = false;
   let prevP = false;
 
-  // Acumulador para el “flash” visual
-  let tAccum = 0;
+  // Flag para no procesar más frames tras game over
+  let gameOver = false;
+
+  // Inicializa UI
+  (game as WithBus).bus?.emit('ui:score:set', score);
+  (game as WithBus).bus?.emit('ui:lives:set', lives);
+  (game as WithBus).bus?.emit('ui:paused:set', paused);
 
   function togglePauseIfNeeded() {
     const p = game.input.pressed('p') || game.input.pressed('P');
-    if (p && !prevP) paused = !paused;
+    if (p && !prevP) {
+      paused = !paused;
+      (game as WithBus).bus?.emit('ui:paused:set', paused);
+    }
     prevP = p;
   }
 
-  function setPlayerTint(invulnerable: boolean) {
-    const player = world.entities.find(e => e.tag === 'player' && e.sprite);
-    if (!player || !player.sprite) return;
-    if (!invulnerable) {
-      player.sprite.color = '#ff0'; // color normal
-      return;
+  function loseLife() {
+    // Clampea vidas, emite y decide game over
+    lives = Math.max(0, lives - 1);
+    (game as WithBus).bus?.emit('ui:lives:set', lives);
+    invulnTimer = invulnDuration;
+    if (lives <= 0) {
+      // Opcional: también podrías emitir paused=true aquí
+      (game as WithBus).bus?.emit('ui:paused:set', true);
+      game.scenes.change(createGameOverScene(game, score));
+      gameOver = true;
     }
-    // parpadeo: alterna color con la “frecuencia” 10 Hz aprox
-    const blink = (Math.floor(tAccum * 10) % 2) === 0;
-    player.sprite.color = blink ? '#fff' : '#ff0';
   }
 
   return {
     update(dt) {
-      // Toggle pausa
-      togglePauseIfNeeded();
-      if (paused) {
-        // aún así permitimos salir de pausa con P en frames siguientes
-        return;
-      }
+      if (gameOver) return; // no más lógica tras game over
 
-      tAccum += dt;
-      if (invulnTimer > 0) invulnTimer -= dt;
+      togglePauseIfNeeded();
+      if (paused) return;
+
+      invulnTimer = Math.max(0, invulnTimer - dt);
 
       inputSystem(world, game);
       shootingSystem(world, game, dt);
-
-      // 👇 IA enemigo calcula kinematics hacia el player
       enemyAISystem(world);
 
       movementSystem(world, dt);
@@ -82,41 +87,26 @@ export function createPlayScene(game: Game): Scene {
       const before = world.entities.length;
       damageSystem(world);
       const after = world.entities.length;
-      if (after < before) score += before - after;
-
-      // Player vs enemy → pierde vida (si no está invulnerable)
-      if (invulnTimer <= 0 && playerHitSystem(world)) {
-        lives -= 1;
-        invulnTimer = invulnDuration;
-        if (lives <= 0) {
-          game.scenes.change(createGameOverScene(game, score));
-          return;
-        }
+      if (after < before) {
+        score += (before - after);
+        (game as WithBus).bus?.emit('ui:score:set', score);
       }
 
-      // Regla adicional (si un enemigo sale del canvas, cuenta como daño)
+      // Player vs enemy → pierde 1 vida (respetando i-frames)
+      if (invulnTimer <= 0 && playerHitSystem(world)) {
+        loseLife();
+        if (gameOver) return; // corta el frame si llegó a 0
+      }
+
+      // Reglas adicionales: enemigo “escapa” del canvas → cuenta como daño
       if (invulnTimer <= 0 && checkGameOver(world, game.ctx.canvas)) {
-        lives -= 1;
-        invulnTimer = invulnDuration;
-        if (lives <= 0) {
-          game.scenes.change(createGameOverScene(game, score));
-        }
+        loseLife();
+        if (gameOver) return;
       }
     },
     render(ctx) {
-      // Tint del player según invulnerabilidad (parpadeo)
-      setPlayerTint(invulnTimer > 0);
-
+      // Solo canvas del juego; HUD está en React
       renderingSystem(world, ctx);
-      hudSystem(ctx, score, lives);
-
-      if (paused) {
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.fillStyle = '#fff';
-        ctx.font = '22px monospace';
-        ctx.fillText('PAUSED (press P)', ctx.canvas.width / 2 - 120, ctx.canvas.height / 2);
-      }
     }
   };
 }
