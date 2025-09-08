@@ -1,38 +1,48 @@
 import type { Scene } from '@core/scene';
 import type { Game } from '@core/game';
-import { createWorld, makePlayer, makeEnemy } from '@state/world';
+import { createWorld, makePlayer } from '@state/world';
 import { inputSystem } from '@systems/input';
 import { movementSystem } from '@systems/movement';
+import { projectilesCleanupSystem } from '@systems/projectiles';
+import { createSpawnSystem } from '@systems/spawn';
 import { boundsSystem } from '@systems/bounds';
-import { collisionSystem } from '@systems/collision';
+import { damageSystem } from '@systems/damage';
 import { renderingSystem } from '@systems/rendering';
+import { createShootingSystem } from '@systems/shooting';
 
 export function createPlayScene(game: Game): Scene {
   const world = createWorld();
 
-  // Player
+  // Entities iniciales
   world.add(makePlayer());
 
-  // Enemy de prueba para validar colisiones
-  world.add(makeEnemy(300, 260));
+  // Systems con estado interno (spawn, shooting)
+  const spawnSystem = createSpawnSystem();
+  const shootingSystem = createShootingSystem();
+
+  // (Opcional) marcador local
+  let score = 0;
 
   return {
     update(dt) {
-      // 1) Input → actualiza kinematics del player
-      inputSystem(world, game);
-      // 2) Movement → aplica kinematics al transform
-      movementSystem(world, dt);
-      // 3) Bounds → mantiene entidades dentro del canvas
-      boundsSystem(world, game.ctx.canvas);
-      // 4) Collisions → detecta AABB (marca color de debug)
-      collisionSystem(world);
+      inputSystem(world, game);                         // teclado → kinematics
+      shootingSystem(world, game, dt);                 // genera balas (cooldown)
+      movementSystem(world, dt);                       // aplica kinematics
+      projectilesCleanupSystem(world, game.ctx.canvas);// limpia balas offscreen
+      spawnSystem(world, game, dt);                    // spawnea enemigos
+      boundsSystem(world, game.ctx.canvas);            // clamp entidades (no balas)
+      const before = world.entities.length;
+      damageSystem(world);                              // balas destruyen enemigos
+      const after = world.entities.length;
+      if (after < before) score += (before - after);    // demo: sumar por entidades removidas
     },
     render(ctx) {
-      // 5) Render → dibuja entidades
       renderingSystem(world, ctx);
-      ctx.fillStyle = '#0f0';
+      // HUD mínimo
+      ctx.fillStyle = '#fff';
       ctx.font = '14px monospace';
-      ctx.fillText('Block 4: bounds + collision (enemy dummy)', 16, 20);
+      ctx.fillText(`Score: ${score}`, 16, 20);
+      ctx.fillText(`Block 5: shooting + spawn + damage`, 16, 38);
     }
   };
 }
