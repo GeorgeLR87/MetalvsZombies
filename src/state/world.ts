@@ -48,3 +48,15 @@ export function makeEnemy(x = 300, y = 260) {
     sprite: { w: 28, h: 28, color: '#0af' }
   };
 }
+
+// --- Projectile factory ---
+export function makeProjectile(x: number, y: number, dir: 'right'|'left' = 'right') {
+  const speed = 360;
+  return {
+    tag: 'projectile' as const,
+    transform: { x, y },
+    kinematics: { vx: dir === 'right' ? speed : -speed, vy: 0, speed },
+    collider: { w: 8, h: 4, solid: false },
+    sprite: { w: 8, h: 4, color: '#fff' }
+  };
+}
