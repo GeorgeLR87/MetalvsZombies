@@ -1,3 +1,4 @@
+// src/scenes/play.ts
 import type { Scene } from '@core/scene';
 import type { Game } from '@core/game';
 import type { EventBus } from '@core/event-bus';
@@ -20,21 +21,31 @@ export function createPlayScene(game: Game): Scene {
   const state = createPlayState();
   syncUI(g.bus, state);
 
- const updates = buildUpdatePipeline({ bus: g.bus, state });
+  // Update pipeline con contexto (ya recibe { bus, state } vía opts)
+  const updates = buildUpdatePipeline({ bus: g.bus, state });
 
-  const renders = buildRenderPipeline(world, g.ctx);
+  // Render pipeline con contexto (sin args; el ctx real se pasa al ejecutar)
+  const renders = buildRenderPipeline();
 
   let prevP = false;
 
   return {
     update(dt) {
       if (state.gameOver) return;
+
+      // Pausa (toggle con P)
       const p = g.input.pressed('p') || g.input.pressed('P');
       if (p && !prevP) togglePause(g.bus, state);
       prevP = p;
       if (state.paused) return;
+
+      // Timers (i-frames)
       state.invulnTimer = Math.max(0, state.invulnTimer - dt);
-      for (const step of updates) step({ dt, game: g, world });      
+
+      // Update pipeline
+      for (const step of updates) step({ dt, game: g, world });
+
+      // Player hits → pierde vida
       if (state.invulnTimer <= 0 && playerHitSystem(world)) {
         loseLife(g.bus, state);
         if (state.gameOver) {
@@ -43,6 +54,8 @@ export function createPlayScene(game: Game): Scene {
           return;
         }
       }
+
+      // Enemigo cruza borde izquierdo → también cuenta como daño
       if (state.invulnTimer <= 0 && checkGameOver(world, g.ctx.canvas)) {
         loseLife(g.bus, state);
         if (state.gameOver) {
@@ -53,7 +66,8 @@ export function createPlayScene(game: Game): Scene {
       }
     },
     render() {
-      for (const draw of renders) draw();
+      // Render pipeline con contexto
+      for (const draw of renders) draw({ game: g, world, ctx: g.ctx });
     }
   };
 }
