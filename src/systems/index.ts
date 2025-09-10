@@ -1,3 +1,4 @@
+// src/systems/index.ts
 import type { Game } from '@core/game';
 import type { World } from '@state/world';
 
@@ -18,6 +19,9 @@ import type { PlayState } from '@scenes/play.state';
 
 export type UpdateCtx = { dt: number; game: Game; world: World };
 export type UpdateStep = (ctx: UpdateCtx) => void;
+
+export type RenderCtx = { game: Game; world: World; ctx: CanvasRenderingContext2D };
+export type RenderStep = (ctx: RenderCtx) => void;
 
 export function buildUpdatePipeline(
   opts?: { bus?: EventBus<UIEvents>; state?: PlayState }
@@ -42,6 +46,9 @@ export function buildUpdatePipeline(
   return steps;
 }
 
-export function buildRenderPipeline(world: World, ctx: CanvasRenderingContext2D) {
-  return [() => renderingSystem(world, ctx)];
+export function buildRenderPipeline(): RenderStep[] {
+  const steps: RenderStep[] = [
+    ({ world, ctx }) => renderingSystem(world, ctx),
+  ];
+  return steps;
 }
